@@ -8,8 +8,6 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, BatchNormalization
 import warnings
 warnings.filterwarnings('ignore')
-
-# Emotion labels mapping from RAVDESS filenames
 emotions = {
     '01': 'neutral',
     '02': 'calm',
@@ -63,16 +61,11 @@ print("Total samples:", len(y))
 # Encode labels
 y_encoded = pd.get_dummies(y).values
 
-# Normalize features
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
-
-# Stratified train-test split for balanced classes
 X_train, X_test, y_train, y_test = train_test_split(
     X_scaled, y_encoded, test_size=0.2, random_state=42, stratify=y
 )
-
-# Build model
 model = Sequential()
 model.add(Dense(256, input_shape=(40,), activation='relu'))
 model.add(BatchNormalization())
@@ -92,11 +85,7 @@ print(f"\nTest Accuracy: {accuracy * 100:.2f}%")
 
 def predict_emotion(file_path):
     mfccs = extract_features(file_path)
-    mfccs = scaler.transform(mfccs.reshape(1, -1))  # Use same scaler here
+    mfccs = scaler.transform(mfccs.reshape(1, -1)) 
     prediction = model.predict(mfccs)
     predicted_emotion = list(emotions.values())[np.argmax(prediction)]
     return predicted_emotion
-
-# Example:
-# test_file = r"C:\Users\Amit Chaurasiya\Downloads\archive\audio_speech_actors_01-24\Actor_01\03-01-05-01-02-01-12.wav"
-# print("Predicted Emotion:", predict_emotion(test_file))
